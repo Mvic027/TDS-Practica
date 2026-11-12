@@ -7,9 +7,10 @@ public class Gasto {
     private String concepto;
     private double cuantia;
     private LocalDate fecha;
-    private String categoria;
+    private Categoria categoria;
 
-    public Gasto(String concepto, double cuantia, LocalDate fecha, String categoria) {
+    public Gasto(String id, String concepto, double cuantia, LocalDate fecha, Categoria categoria) {
+    	this.id=id;
         this.concepto = concepto;
         this.cuantia = cuantia;
         this.fecha = fecha;
@@ -28,7 +29,7 @@ public class Gasto {
         return fecha;
     }
 
-    public String getCategoria() {
+    public Categoria getCategoria() {
         return categoria;
     }
 
