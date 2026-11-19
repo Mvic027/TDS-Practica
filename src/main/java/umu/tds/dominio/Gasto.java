@@ -40,23 +40,6 @@ public class Gasto {
         return categoria;
     }
 
-    public void setConcepto(String concepto) {
-        this.concepto = validarConcepto(concepto);
-    }
-
-    public void setCuantia(double cuantia) {
-        this.cuantia = validarCuantia(cuantia);
-    }
-
-    public void setFecha(LocalDate fecha) {
-        this.fecha = validarFecha(fecha);
-    }
-
-    public void setCategoria(Categoria categoria) {
-        this.categoria = validarCategoria(categoria);
-    }
-
-
     private static String validarConcepto(String concepto) {
         if (concepto == null || concepto.isBlank())
             throw new IllegalArgumentException("El concepto no puede estar vacío");
@@ -75,6 +58,18 @@ public class Gasto {
 
     private static Categoria validarCategoria(Categoria categoria) {
         return Objects.requireNonNull(categoria, "La categoría no puede ser nula");
+    }
+    
+    public void actualizar(String concepto, double cuantia, LocalDate fecha, Categoria categoria) {
+    	String conceptoValido  = validarConcepto(concepto);
+    	double cuantiaValida   = validarCuantia(cuantia);
+    	LocalDate fechaValida     = validarFecha(fecha);
+    	Categoria categoriaValida = validarCategoria(categoria);
+    
+    	this.concepto  = conceptoValido;
+    	this.cuantia   = cuantiaValida;
+    	this.fecha     = fechaValida;
+    	this.categoria = categoriaValida;
     }
 
 
