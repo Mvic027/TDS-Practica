@@ -1,6 +1,7 @@
 package umu.tds.repositorio;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import umu.tds.dominio.Gasto;
@@ -14,6 +15,6 @@ public interface RepositorioGastos {
 
 	List<Gasto> listarGastos();
 
-	//devuelve null si no existe
-	Gasto buscarGasto(UUID id);
+	Optional<Gasto> buscarGasto(UUID id);
 }
+

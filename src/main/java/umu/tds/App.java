@@ -20,7 +20,7 @@ public class App {
         //Repositorio
         System.out.println();
         Gasto cena = new Gasto("Cena", 20, LocalDate.now(), comida);
-        RepositorioGastos repo = new RepositorioGastosMemoria();
+        RepositorioGastos repo = RepositorioGastosMemoria.getInstancia();
 
         System.out.println("Añadir: " + repo.anadirGasto(cena));          // true
         System.out.println("Añadir otra vez: " + repo.anadirGasto(cena)); // false

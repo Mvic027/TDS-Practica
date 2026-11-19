@@ -2,6 +2,7 @@ package umu.tds.controlador;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import umu.tds.dominio.Categoria;
@@ -16,7 +17,7 @@ public class GestorGastos {
 	private final RepositorioGastos repositorioGastos;
 	
 	private GestorGastos() {
-		repositorioGastos = new RepositorioGastosMemoria();
+		repositorioGastos = RepositorioGastosMemoria.getInstancia();
 	}
 	
 	public static GestorGastos getUnicaInstancia() {
@@ -31,11 +32,13 @@ public class GestorGastos {
 		return repositorioGastos.anadirGasto(gasto);
 	}
 	
-	public boolean modificarGasto(UUID id,String concepto, double cuantia, LocalDate fecha, Categoria categoria) {
-		Gasto gasto = repositorioGastos.buscarGasto(id);
-		if(gasto==null) return false;
-		gasto.actualizar(concepto, cuantia, fecha, categoria);
-		return repositorioGastos.modificarGasto(gasto);
+	public boolean modificarGasto(UUID id, String concepto, double cuantia, LocalDate fecha, Categoria categoria) {
+	    return repositorioGastos.buscarGasto(id)
+	            .map(g -> {
+	                g.actualizar(concepto, cuantia, fecha, categoria);
+	                return repositorioGastos.modificarGasto(g);
+	            })
+	            .orElse(false);
 	}
 	
 	public boolean borrarGasto(UUID id) {
