@@ -2,7 +2,6 @@ package umu.tds.controlador;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import umu.tds.dominio.Categoria;
