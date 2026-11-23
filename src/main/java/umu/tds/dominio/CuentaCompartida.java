@@ -45,14 +45,10 @@ public abstract class CuentaCompartida {
         Persona pagador = gasto.getPagador()
                 .orElseThrow(() -> new IllegalArgumentException("Un gasto en cuenta compartida debe tener pagador"));
         
-        Persona pagadorEnCuenta = personas.stream()
+        personas.stream()
                 .filter(p -> p.equals(pagador))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("El pagador no pertenece a esta cuenta compartida"));
-        
-        if (!personas.contains(pagador)) {
-            throw new IllegalArgumentException("El pagador no pertenece a esta cuenta compartida");
-        }
 
         // TODO 5: Añade el gasto a 'this.gastos', suma el total al pagador (pagador.actualizarSaldo(gasto.getCuantia()))
         // y llama al método abstracto repartirDeuda(gasto) para restar a cada uno su parte.

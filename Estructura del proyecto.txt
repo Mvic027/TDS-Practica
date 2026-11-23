@@ -1,0 +1,43 @@
+1. Capa de Dominio (umu.tds.dominio) Contiene las entidades del negocio, la lógica matemática y los patrones de comportamiento.Núcleo de Gastos y Categorías
+	✅ Categoria: Identidad por nombre (case-insensitive).   
+	✅ Persona: Nombre y saldo pendiente (actualizarSaldo - Patrón Experto).   
+	✅ Gasto: UUID, concepto, cuantía, fecha, Categoria y Optional<Persona> (pagador).   
+ -Módulo de Cuentas Compartidas (Patrón Método Plantilla)
+	✅ CuentaCompartida (abstracta): id, nombre, lista inmutable de Persona, lista de Gasto, método concreto registrarGasto() y método abstracto repartirDeuda().
+	✅ CuentaEquitativa (extends CuentaCompartida): Reparte cuantia / N a cada participante.
+	✅ CuentaPorcentajes (extends CuentaCompartida): Mapa inmutable Map<Persona, Double> (validando suma = 100%) y reparte según porcentaje.
+ -Módulo de Alertas y Notificaciones (Patrón Estrategia)
+	⏳ Alerta: id, limite (double), Optional<Categoria>, EstrategiaAlerta (composición), y fecha/periodo de última notificación (para evitar spam). Método evaluar(List<Gasto>, 			LocalDate) que devuelve Optional<Notificacion>.
+	⏳ EstrategiaAlerta (interfaz): Método calcularGastoEnPeriodo(List<Gasto>, Optional<Categoria>, LocalDate fechaRef).
+	⏳ EstrategiaSemanal (implements EstrategiaAlerta): Filtra gastos de la semana natural de fechaRef (lunes a domingo).
+	⏳ EstrategiaMensual (implements EstrategiaAlerta): Filtra gastos del mes y año de fechaRef.
+	⏳ Notificacion: id, mensaje, LocalDateTime fechaGeneracion, boolean leida, Alerta alertaOrigen.
+ -Módulo de Filtros de Consulta (Patrón Especificación / Predicados)
+	⏳ FiltroGastos (o clase de utilidad/predicados componibles): Permite combinar filtros por lista de meses, rango de fechas (LocalDate inicio/fin) y lista de categorías usando 			Predicate<Gasto> y Stream.   
+
+2. Capa de Repositorios (umu.tds.repositorio) Desacopla el dominio del almacenamiento mediante interfaces y acceso global controlado (Patrón Singleton + Optional).   
+	✅ RepositorioGastos (interfaz) & ✅ RepositorioGastosMemoria (Singleton).   
+	✅ RepositorioCategorias (interfaz) & ✅ RepositorioCategoriasMemoria (Singleton con precarga).   
+	⏳ RepositorioCuentas (interfaz) & ⏳ RepositorioCuentasMemoria (Singleton): Almacena las CuentaCompartida creadas.
+	⏳ RepositorioAlertas (interfaz) & ⏳ RepositorioAlertasMemoria (Singleton): Almacena las Alertas activas y el historial de Notificaciones.
+
+3. Módulo de Importación Externa (umu.tds.importacion) Cumple con la exigencia del enunciado de aplicar Patrón Adaptador y Patrón Método Factoría para leer ficheros externos.   
+	⏳ ImportadorGastos (interfaz - Target del Adaptador): Método List<Gasto> importar(File fichero).
+	⏳ AdaptadorCSVBanco (implements ImportadorGastos - Adapter): Lee el formato concreto del CSV proporcionado (tds-ejemplo-datos-gastos.csv) y lo traduce a objetos Gasto de tu 			dominio (creando o buscando la Categoria correspondiente).   
+	⏳ FactoriaImportadores (Factory Method / Simple Factory): Dado un fichero o extensión/tipo (ej. "CSV_BANCO"), instancia y devuelve el ImportadorGastos adecuado sin acoplar al 		controlador con las clases concretas de lectura.
+
+4. Capa de Controlador (umu.tds.controlador) Actúa como fachada única (Patrón Controlador GRASP + Patrón Singleton) coordinando repositorios, evaluación de alertas y casos de uso.   
+	🔄 GestorGastos (Singleton - ya iniciado, hay que ampliarlo):   
+	-CRUD de gastos personales (al añadir o modificar un gasto, dispara automáticamente la evaluación de todas las alertas del RepositorioAlertas y guarda las notificaciones nuevas).
+	-Gestión de categorías (crear nuevas, listar).   
+	-Gestión de cuentas compartidas (crear equitativa/porcentajes, registrar gasto en cuenta).   
+	-Gestión de alertas y notificaciones (crear alerta, listar historial, marcar notificación como leída).   
+	-Filtrado de gastos e importación de ficheros delegando en FactoriaImportadores.  
+ 
+5. Capa de Persistencia (umu.tds.persistencia)
+	⏳ Implementaciones JDBC (o DAO) de las interfaces de repositorio para persistir los datos en base de datos relacional (SQLite / H2 / MySQL según configuración de prácticas).   
+
+6. Capa de Presentación (umu.tds.gui y umu.tds.cli)
+	⏳ Interfaz Línea de Comandos (CLI): Clase que lee comandos por consola para registrar, modificar y borrar gastos invocando a GestorGastos.   
+	⏳ Interfaz Gráfica JavaFX: Ventanas/vistas FXML y controladores visuales (tabla de gastos con filtros, gestión de cuentas compartidas, panel de alertas/notificaciones, gráficos 		de barras/tarta y vista de calendario).
+
